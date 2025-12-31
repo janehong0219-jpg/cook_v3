@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>勛勛上菜 v19.2 - 完整文案回歸版</title>
+    <title>勛勛上菜 陪你用心過生活</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -11,33 +11,34 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         [v-cloak] { display: none; }
-        body { background-color: #fdfbf7; font-family: 'Noto Sans TC', sans-serif; color: #44403c; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #fdfbf7; font-family: 'Noto Sans TC', sans-serif; color: #44403c; -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
         .app-shell { width: 100%; max-width: 1200px; margin: 0 auto; min-height: 100vh; background: #fdfbf7; position: relative; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .tab-btn { padding: 8px 0; margin-right: 24px; color: #a8a29e; font-weight: 500; transition: all 0.3s; position: relative; white-space: nowrap; }
         .tab-btn.active { color: #1c1917; font-weight: 700; font-size: 1.1em; }
         .tab-btn.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; background: #ea580c; border-radius: 50%; }
         .chip { transition: all 0.2s; white-space: nowrap; }
         .chip.active { background: #1c1917 !important; color: white !important; border-color: #1c1917 !important; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transform: translateY(-1px); }
-        .recipe-card { background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); transition: all 0.3s; height: 100%; display: flex; flex-direction: column; }
+        .recipe-card { background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); transition: all 0.3s; height: 100%; display: flex; flex-direction: column; scroll-mt: 160px; }
         @media (min-width: 768px) { .recipe-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); } }
         .animate-fade-up { animation: fadeInUp 0.5s ease-out forwards; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .gf-box { background: #fff1f2; border-left: 4px solid #f43f5e; color: #9f1239; }
         .gf-box.warm-mode { background: #fff7ed; border-left-color: #f97316; color: #9a3412; }
-        @keyframes heartbeat { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
         .secret-heart { animation: heartbeat 1.5s infinite; cursor: pointer; position: absolute; top: 12px; right: 12px; color: #f43f5e; font-size: 1.2rem; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1)); }
+        @keyframes heartbeat { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
         .chef-note { background: #f5f5f4; border-radius: 16px; padding: 16px; margin-top: auto; }
         .chef-input { width: 100%; background: white; border: 1px solid #e7e5e4; border-radius: 8px; padding: 10px; font-size: 14px; margin-top: 8px; outline: none; transition: border 0.3s; resize: none; }
         .sidebar-menu { width: 280px; max-width: 85vw; }
         .login-overlay, .info-modal-overlay { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-        .info-content h2 { font-size: 18px; font-weight: bold; color: #1c1917; margin-bottom: 12px; border-left: 4px solid #ea580c; padding-left: 10px; }
-        .info-content h3 { font-size: 15px; font-weight: bold; color: #44403c; margin-top: 20px; margin-bottom: 8px; }
-        .info-content p { font-size: 14px; color: #57534e; line-height: 1.8; margin-bottom: 12px; }
-        .info-quote { background: #fdfbf7; padding: 16px; border-radius: 12px; font-style: italic; color: #78716c; margin: 16px 0; font-size: 13px; border: 1px solid #f5f5f4; }
-        .info-list li { font-size: 14px; color: #57534e; margin-bottom: 8px; padding-left: 16px; position: relative; }
-        .info-list li::before { content: '•'; color: #ea580c; position: absolute; left: 0; font-weight: bold; }
+        .favorite-btn { position: absolute; top: 16px; left: 16px; z-index: 10; background: rgba(255,255,255,0.8); backdrop-filter: blur(4px); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #a8a29e; transition: all 0.3s; }
+        .favorite-btn.is-fav { color: #f43f5e; background: white; }
+
+        /* 個人頁面與編輯樣式 */
+        .profile-input { width: 100%; border: 1px solid #e7e5e4; border-radius: 8px; padding: 8px; font-size: 14px; background: #f9f8f6; margin-bottom: 12px; }
+        .profile-input:focus { border-color: #ea580c; outline: none; background: white; }
+        .fav-item-link { display: flex; align-items: center; padding: 12px; background: #f9f8f6; border-radius: 12px; margin-bottom: 8px; transition: background 0.2s; cursor: pointer; }
+        .fav-item-link:hover { background: #f0ede9; }
     </style>
 </head>
 <body>
@@ -46,24 +47,59 @@
     
     <div v-if="showLoginModal" class="login-overlay fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60">
         <div :class="['login-box bg-white w-full max-w-[320px] p-8 rounded-[32px] shadow-2xl text-center', isShake ? 'shake' : '']">
-            <div class="mb-6">
-                <div class="w-16 h-16 bg-stone-100 rounded-full mx-auto mb-4 flex items-center justify-center text-2xl">🔒</div>
-                <h2 class="text-xl font-bold text-stone-800">請先登入</h2>
-                <p class="text-xs text-stone-400 mt-1">這是專屬張建築師的補給站</p>
-            </div>
+            <div class="mb-6"><div class="w-16 h-16 bg-stone-100 rounded-full mx-auto mb-4 flex items-center justify-center text-2xl">🔒</div><h2 class="text-xl font-bold text-stone-800">請先登入</h2></div>
             <input type="text" v-model="inputUser" placeholder="帳號" class="w-full p-3 mb-3 border border-stone-200 rounded-xl outline-none focus:border-orange-500">
             <input type="password" v-model="inputPwd" placeholder="密碼" class="w-full p-3 mb-4 border border-stone-200 rounded-xl outline-none focus:border-orange-500">
             <button @click="checkLogin" class="w-full bg-[#ea580c] text-white p-3 rounded-xl font-bold hover:bg-orange-600 transition-all">進入廚房</button>
-            <p v-if="loginError" class="text-xs text-red-500 mt-3 font-medium">帳號或密碼錯誤囉！</p>
         </div>
     </div>
 
     <div v-if="showInfoModal" class="info-modal-overlay fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/50" @click="showInfoModal = false">
         <div class="bg-white w-full max-w-[500px] max-h-[85vh] overflow-y-auto rounded-[32px] p-8 relative shadow-2xl no-scrollbar" @click.stop>
             <button class="absolute top-6 right-6 text-stone-400 hover:text-stone-800" @click="showInfoModal = false"><i class="fas fa-times text-xl"></i></button>
-            <div class="info-content" v-html="infoModalContent"></div>
+            
+            <div v-if="isPersonalPage" class="personal-page">
+                <div class="flex items-center gap-6 mb-8">
+                    <img :src="userProfile.avatar || 'logo.jpg'" class="w-20 h-20 rounded-full object-cover border-2 border-orange-100 p-1">
+                    <div class="flex-1">
+                        <h2 class="text-xl font-bold text-stone-800">{{ userProfile.name }}</h2>
+                        <p class="text-xs text-stone-400 mt-1">{{ userProfile.bio }}</p>
+                        <button @click="isEditingProfile = !isEditingProfile" class="mt-3 text-[10px] font-bold text-stone-500 px-3 py-1 border border-stone-200 rounded-md">
+                            {{ isEditingProfile ? '取消編輯' : '編輯個人資料' }}
+                        </button>
+                    </div>
+                </div>
+
+                <div v-if="isEditingProfile" class="bg-stone-50 p-4 rounded-2xl mb-8 animate-fade-up">
+                    <label class="text-[10px] font-bold text-stone-400 uppercase mb-1 block">主廚名稱</label>
+                    <input v-model="userProfile.name" class="profile-input" placeholder="輸入您的名稱...">
+                    <label class="text-[10px] font-bold text-stone-400 uppercase mb-1 block">大頭貼 URL</label>
+                    <input v-model="userProfile.avatar" class="profile-input" placeholder="https://...">
+                    <label class="text-[10px] font-bold text-stone-400 uppercase mb-1 block">個人簡介</label>
+                    <textarea v-model="userProfile.bio" class="profile-input" rows="2" placeholder="介紹一下你自己..."></textarea>
+                    <button @click="saveProfile" class="w-full bg-stone-800 text-white py-2 rounded-xl text-sm font-bold">儲存更新</button>
+                </div>
+
+                <h3 class="text-xs font-bold text-stone-400 uppercase tracking-widest mb-4"><i class="fas fa-heart text-rose-400 mr-1"></i> 我的收藏食譜</h3>
+                <div v-if="favorites.length > 0">
+                    <div v-for="favName in favorites" :key="favName" @click="scrollToRecipe(favName)" class="fav-item-link">
+                        <div class="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center text-orange-500 mr-4 shrink-0">
+                            <i class="fas fa-utensils text-sm"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-bold text-stone-700">{{ favName }}</div>
+                            <div class="text-[10px] text-stone-400">點擊前往查看</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-stone-300 text-xs"></i>
+                    </div>
+                </div>
+                <div v-else class="text-center py-10 text-stone-400 text-sm italic">還沒有收藏任何好味道...</div>
+            </div>
+
+            <div v-else class="info-content" v-html="infoModalContent"></div>
+            
             <div class="mt-8 pt-6 border-t border-stone-100 text-center">
-                 <button @click="showInfoModal = false" class="text-sm font-bold text-stone-500 px-6 py-2 border border-stone-200 rounded-full hover:bg-stone-50">已閱讀</button>
+                 <button @click="showInfoModal = false" class="text-sm font-bold text-stone-500 px-6 py-2 border border-stone-200 rounded-full hover:bg-stone-50">返回首頁</button>
             </div>
         </div>
     </div>
@@ -74,13 +110,11 @@
             <h2 class="text-2xl font-bold text-stone-800">選單</h2>
             <button @click="showMenu = false" class="text-stone-400 hover:text-stone-800"><i class="fas fa-times text-xl"></i></button>
         </div>
-        <div class="space-y-8 flex-1 overflow-y-auto no-scrollbar pb-10">
+        <div class="space-y-8 flex-1 overflow-y-auto no-scrollbar">
             <div v-for="(links, category) in menuItems" :key="category">
                 <h3 class="text-[11px] font-bold text-stone-300 uppercase tracking-widest mb-3">{{ category }}</h3>
                 <div class="space-y-1">
-                    <a v-for="link in links" :key="link" @click="handleMenuClick(link)" class="block py-2 text-stone-600 font-medium hover:text-orange-600 transition-colors cursor-pointer border-b border-stone-50">
-                        {{ link }}
-                    </a>
+                    <a v-for="link in links" :key="link" @click="handleMenuClick(link)" class="block py-2 text-stone-600 font-medium hover:text-orange-600 transition-colors cursor-pointer border-b border-stone-50">{{ link }}</a>
                 </div>
             </div>
         </div>
@@ -88,27 +122,20 @@
 
     <div class="app-shell flex flex-col">
         <header class="pt-8 px-6 pb-4 flex items-center gap-4 bg-[#fdfbf7] sticky top-0 z-50">
-            <button @click="showMenu = true" class="w-10 h-10 flex items-center justify-center text-stone-600 hover:bg-stone-100 rounded-full">
-                <i class="fas fa-bars text-xl"></i>
-            </button>
+            <button @click="showMenu = true" class="w-10 h-10 flex items-center justify-center text-stone-600 hover:bg-stone-100 rounded-full"><i class="fas fa-bars text-xl"></i></button>
             <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-md">
-                <img v-if="!imgError" src="logo.jpg" alt="Logo" class="w-full h-full object-cover" @error="handleImgError">
-                <div v-else class="w-full h-full bg-stone-200 flex items-center justify-center"><i class="fas fa-utensils text-stone-400"></i></div>
+                <img :src="userProfile.avatar || 'logo.jpg'" alt="Profile" class="w-full h-full object-cover">
             </div>
             <div class="flex-1">
                 <h1 class="text-xl font-bold text-stone-800 tracking-tight">勛勛上菜</h1>
                 <p class="text-[10px] text-stone-400 font-medium">勛勛上菜，陪你用心過生活。</p>
             </div>
-            <button v-if="selected.length" @click="selected = []" class="text-xs font-bold text-orange-600 bg-orange-50 px-4 py-2 rounded-full hover:bg-orange-100 transition-colors">
-                清除 ({{ selected.length }})
-            </button>
+            <button v-if="selected.length" @click="selected = []" class="text-xs font-bold text-orange-600 bg-orange-50 px-4 py-2 rounded-full">清除 ({{ selected.length }})</button>
         </header>
 
         <nav class="sticky top-[84px] z-40 bg-[#fdfbf7]/90 backdrop-blur px-6 border-b border-stone-100">
             <div class="flex overflow-x-auto no-scrollbar pb-1">
-                <button v-for="tab in tabs" :key="tab.id" @click="currentTab = tab.id" :class="['tab-btn', currentTab === tab.id ? 'active' : '']">
-                    {{ tab.name }}
-                </button>
+                <button v-for="tab in tabs" :key="tab.id" @click="currentTab = tab.id" :class="['tab-btn', currentTab === tab.id ? 'active' : '']">{{ tab.name }}</button>
             </div>
         </nav>
 
@@ -116,76 +143,51 @@
             <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
                 <div class="space-y-6">
                     <div v-for="(list, group) in ingredientGroups" :key="group">
-                        <h3 class="text-[11px] font-bold text-stone-300 uppercase tracking-widest mb-3 flex items-center">
-                            <i class="fas fa-tag mr-2 opacity-50"></i> {{ group }}
-                        </h3>
+                        <h3 class="text-[11px] font-bold text-stone-300 uppercase tracking-widest mb-3">{{ group }}</h3>
                         <div class="flex flex-wrap gap-2">
-                            <button v-for="item in list" :key="item" @click="toggle(item)"
-                                :class="['chip px-3 py-1.5 rounded-xl text-sm font-medium border border-stone-200 bg-white text-stone-600', 
-                                        selected.includes(item) ? 'active' : 'hover:bg-stone-50']">
-                                {{ item }}
-                            </button>
+                            <button v-for="item in list" :key="item" @click="toggle(item)" :class="['chip px-3 py-1.5 rounded-xl text-sm font-medium border border-stone-200 bg-white text-stone-600', selected.includes(item) ? 'active' : 'hover:bg-stone-50']">{{ item }}</button>
                         </div>
                     </div>
                 </div>
                 <div class="p-6 bg-stone-50 rounded-[32px] self-start">
-                    <h3 class="text-[11px] font-bold text-stone-300 uppercase tracking-widest mb-4 flex items-center">
-                        <i class="fas fa-compass mr-2 opacity-50"></i> 料理風格探索
-                    </h3>
+                    <h3 class="text-[11px] font-bold text-stone-300 uppercase tracking-widest mb-4">料理風格</h3>
                     <div class="flex flex-wrap gap-2">
-                        <button v-for="style in styles" :key="style" @click="toggle(style)"
-                             :class="['chip px-4 py-2 rounded-full text-xs font-medium border border-stone-200 bg-white text-stone-500', 
-                                    selected.includes(style) ? 'active' : 'hover:bg-stone-100']">
-                            #{{ style }}
-                        </button>
+                        <button v-for="style in styles" :key="style" @click="toggle(style)" :class="['chip px-4 py-2 rounded-full text-xs font-medium border border-stone-200 bg-white text-stone-500', selected.includes(style) ? 'active' : 'hover:bg-stone-100']">#{{ style }}</button>
                     </div>
                 </div>
             </div>
 
             <div v-if="filteredRecipes.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
-                <div v-for="recipe in filteredRecipes" :key="recipe.name" class="recipe-card animate-fade-up">
+                <div v-for="recipe in filteredRecipes" :key="recipe.name" :id="'recipe-' + recipe.name" class="recipe-card animate-fade-up">
                     <div class="relative h-48 w-full shrink-0">
+                        <button @click.stop="toggleFavorite(recipe.name)" :class="['favorite-btn', isFav(recipe.name) ? 'is-fav' : '']">
+                            <i :class="[isFav(recipe.name) ? 'fas' : 'far', 'fa-heart']"></i>
+                        </button>
                         <img :src="recipe.img" class="w-full h-full object-cover rounded-t-[24px]">
-                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-stone-800 shadow-sm">
-                            <i class="far fa-clock mr-1"></i>{{ recipe.time }}
-                        </div>
+                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-stone-800 shadow-sm">{{ recipe.time }}</div>
                     </div>
                     <div class="p-6 flex flex-col flex-1">
-                        <div class="flex gap-2 mb-3 flex-wrap">
-                            <span v-for="tag in recipe.tags.filter(t => selected.includes(t) || styles.includes(t))" :key="tag" class="text-[9px] font-bold tracking-widest uppercase text-stone-400 border border-stone-200 px-2 py-0.5 rounded">{{ tag }}</span>
-                        </div>
                         <h2 class="text-xl font-bold text-stone-800 mb-4">{{ recipe.name }}</h2>
                         <div class="space-y-4 flex-1">
                             <div>
                                 <h4 class="text-[10px] font-bold text-stone-300 uppercase mb-2">準備食材</h4>
-                                <p class="text-sm text-stone-500 leading-relaxed">
-                                    <span v-for="(ing, i) in recipe.ingredients" :key="i">{{ ing.name }} {{ ing.qty }}<span v-if="i < recipe.ingredients.length-1">、</span></span>
-                                </p>
+                                <p class="text-sm text-stone-500 leading-relaxed"><span v-for="(ing, i) in recipe.ingredients" :key="i">{{ ing.name }} {{ ing.qty }}<span v-if="i < recipe.ingredients.length-1">、</span></span></p>
                             </div>
                             <div :class="['gf-box p-4 rounded-2xl relative transition-all duration-500', recipe.showSecret ? 'warm-mode' : '']">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <i :class="['fas', recipe.showSecret ? 'fa-heart text-orange-500' : 'fa-comment-dots text-rose-400']"></i>
-                                    <span class="text-[10px] font-bold opacity-60">{{ recipe.showSecret ? '來自家人的真心話' : '女友犀利點評' }}</span>
-                                </div>
+                                <div class="flex items-center gap-2 mb-2"><i :class="['fas', recipe.showSecret ? 'fa-heart text-orange-500' : 'fa-comment-dots text-rose-400']"></i><span class="text-[10px] font-bold opacity-60">點評</span></div>
                                 <p class="text-xs font-medium italic leading-relaxed">“{{ recipe.showSecret ? recipe.secretMsg : recipe.gf }}”</p>
                                 <div v-if="recipe.secretMsg && !recipe.showSecret" @click.stop="triggerSecret(recipe)" class="secret-heart"><i class="fas fa-heart"></i></div>
                             </div>
                             <div class="chef-note">
-                                <h4 class="text-[10px] font-bold text-stone-400 mb-3 flex items-center justify-between">
-                                    <span><i class="fas fa-pen-nib mr-1.5"></i> 主廚筆記</span>
-                                    <span class="bg-stone-200 px-2 py-0.5 rounded-full" v-if="recipe.savedNotes && recipe.savedNotes.length">{{ recipe.savedNotes.length }}</span>
-                                </h4>
-                                <div class="max-h-[120px] overflow-y-auto no-scrollbar space-y-2 mb-3">
-                                    <div v-for="(note, idx) in recipe.savedNotes" :key="idx" class="history-item">
-                                        <div class="flex justify-between items-start">
-                                            <span class="history-date">{{ note.date }}</span>
-                                            <button @click="deleteNote(recipe, idx)" class="text-stone-300 hover:text-red-400 transition-colors"><i class="fas fa-times"></i></button>
-                                        </div>
-                                        <p class="history-content text-xs">{{ note.text }}</p>
+                                <h4 class="text-[10px] font-bold text-stone-400 mb-3">主廚筆記</h4>
+                                <div class="max-h-[80px] overflow-y-auto no-scrollbar space-y-2 mb-3">
+                                    <div v-for="(note, idx) in recipe.savedNotes" :key="idx" class="history-item text-[10px] border-l-2 border-stone-200 pl-2">
+                                        <div class="text-stone-300">{{ note.date }}</div>
+                                        <p class="text-stone-500">{{ note.text }}</p>
                                     </div>
                                 </div>
-                                <textarea v-model="recipe.userFeedback" rows="1" class="chef-input" placeholder="紀錄筆記..."></textarea>
-                                <button @click="saveAndSend(recipe)" :disabled="recipe.isSending || !recipe.userFeedback" class="bg-stone-800 text-white text-[10px] px-3 py-1 rounded-md float-right mt-2">儲存</button>
+                                <textarea v-model="recipe.userFeedback" rows="1" class="chef-input" placeholder="隨手記下火候比例..."></textarea>
+                                <button @click="saveAndSend(recipe)" class="bg-stone-800 text-white text-[10px] px-3 py-1 rounded-md float-right mt-2">儲存</button>
                                 <div class="clear-both"></div>
                             </div>
                         </div>
@@ -193,24 +195,6 @@
                 </div>
             </div>
         </main>
-
-        <footer class="bg-[#fdfbf7] text-stone-400 py-16 px-6 border-t border-stone-100">
-            <div class="max-w-[1200px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-12 text-left">
-                <div class="col-span-2 md:col-span-1">
-                    <h1 class="text-xl font-bold text-stone-800 mb-4">勛勛上菜</h1>
-                    <p class="text-sm leading-relaxed">勛勛上菜，陪你用心過生活。</p>
-                </div>
-                <div v-for="(links, category) in menuItems" :key="category">
-                    <h4 class="text-stone-800 text-sm font-bold mb-6 tracking-widest">{{ category }}</h4>
-                    <ul class="space-y-3 text-sm">
-                        <li v-for="link in links" :key="link" @click="handleMenuClick(link)" class="hover:text-orange-600 transition-colors cursor-pointer">{{ link }}</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="max-w-[1200px] mx-auto border-t border-stone-100 mt-16 pt-8 text-center text-[10px] tracking-widest uppercase">
-                &copy; 2025 HsunHsun Cooking. All rights reserved.
-            </div>
-        </footer>
     </div>
 </div>
 
@@ -226,108 +210,92 @@ createApp({
         const imgError = ref(false);
         const handleImgError = () => { imgError.value = true; };
         const recipes = ref(typeof allRecipes !== 'undefined' ? allRecipes : []);
-        
-        const showLoginModal = ref(false);
-        const inputUser = ref('');
-        const inputPwd = ref('');
-        const loginError = ref(false);
-        const isShake = ref(false);
-        const CORRECT_USER = 'shyun';
-        const CORRECT_PWD = 'love1314';
-
+        const favorites = ref([]);
         const showMenu = ref(false);
         const showInfoModal = ref(false);
         const infoModalContent = ref('');
+        const isPersonalPage = ref(false);
+        const isEditingProfile = ref(false);
+
+        // 🔥 使用者資訊 🔥
+        const userProfile = ref({
+            name: '張景勛建築師',
+            bio: '在這裡，卸下建築圖紙，勾勒家的溫度。',
+            avatar: ''
+        });
+
+        const showLoginModal = ref(false);
+        const inputUser = ref('');
+        const inputPwd = ref('');
+        const CORRECT_USER = 'shyun';
+        const CORRECT_PWD = 'love1314';
 
         const tabs = [{ id: 'all', name: '全部' }, { id: 'main', name: '吃飽主食' }, { id: 'side', name: '宵夜下酒' }, { id: 'brunch', name: '早午餐' }, { id: 'teatime', name: '午茶甜點' }];
-
-        // 🔥 完整選單資料回歸 🔥
         const menuItems = {
             '關於': ['網站介紹', '關於勛勛上菜', '加入我們', '廣告合作'],
             '品牌資產': ['隱私權與條款'],
-            '會員服務': ['常見問題', '忘記密碼', '帳號設定', '個人頁面', '食譜收藏']
+            '會員服務': ['個人頁面', '食譜收藏', '帳號設定', '忘記密碼']
         };
 
-        // 🔥 完整文案資料回歸 🔥
         const contentData = {
-            '關於勛勛上菜': `
-                <h2>勛勛上菜｜張景勛建築師的私房靈感食譜</h2>
-                <div class="info-quote">「卸下建築圖紙，在廚房裡勾勒家的溫度。」</div>
-                <h3>▎關於這個網站：從藍圖到餐盤的療癒轉身</h3>
-                <p>對於張景勛建築師來說，白天是在線條與結構中構築城市的風景；而夜晚，則是走進廚房，在鍋碗瓢盆間尋找生活的節奏。</p>
-                <p>「勛勛上菜」 是專為張建築師量身打造的個人專屬食譜空間。我們深知建築師的工作充滿挑戰與高壓，因此這個網站不只是食譜的堆疊，更是一個「決策減壓」的補給站。讓您只需輕輕一點，就能找到專屬於您的美味靈感。</p>
-            `,
-            '網站介紹': `
-                <h2>網站特色亮點</h2>
-                <h3>✍️ 專屬建築師的「料理備註欄」</h3>
-                <p>每一道料理都是一次實驗。網站特別設計了隨手筆記功能，讓您可以像標註設計圖一樣紀錄筆記，打造出不斷進化的「勳式風味」。</p>
-                <h3>💡 快速決策，效率下廚</h3>
-                <p>針對建築師高效的生活步調，食譜分類清爽直觀。無論是快速出菜還是週末慢燉，都能讓您下班後快速選定目標。</p>
-                <h3>🎨 職人跨界對話：與網頁設計師的連動</h3>
-                <p>這是一個會「成長」的網頁。透過內建的回饋機制，您的每一條使用建議都能直達網頁設計師，讓這個數位空間越來越貼合您的生活習慣。</p>
-                <div class="info-quote">「建築是為了安置身體，而料理是為了安放靈魂。」</div>
-                <h3>▎寫給景勛建築師的一段話</h3>
-                <p>辛苦了，張建築師。當您推開家門，這裡就是您的創意實驗室。願這個網頁能陪伴您，在熱氣騰騰的飯菜香中，找回最純粹的快樂與滿足。</p>
-                <h3>🌟 網站功能概覽</h3>
-                <ul class="info-list">
-                    <li>靈感搜尋：依冰箱剩餘食材快速匹配。</li>
-                    <li>私房筆記：記錄每一道菜的微調細節。</li>
-                    <li>一鍵對話：向設計師提供反饋。</li>
-                    <li>溫馨排版：視覺柔和，夜間使用體驗優化。</li>
-                </ul>
-            `,
-            '隱私權與條款': `
-                <h2>隱私權與條款 (張景勛專屬版)</h2>
-                <div class="terms-section">
-                    <h3>1. 認知與接受條款</h3>
-                    <p>當您開始瀏覽食譜，即表示您同意接受這份充滿愛的條款。勛勛上菜有權隨時修改條款，若您繼續煮飯，視為您願意繼續遵守（並加碼寵愛女友）。</p>
-                </div>
-                <div class="terms-section">
-                    <h3>2. 您的註冊與準時開飯義務</h3>
-                    <p>若因加班導致開飯時間不正確，雖不終止帳號，但您須無償幫女友按摩 30 分鐘作為補償。</p>
-                </div>
-                <div class="terms-section">
-                    <h3>3. 帳號、密碼及居家安全</h3>
-                    <p>每次煮飯完畢請記得清理流理台，若未完成，視同違反契約，需繳交女友保護費 300 元。</p>
-                </div>
-                <div class="terms-section">
-                    <h3>4. 使用者的守法義務與「愛的承諾」</h3>
-                    <ul class="info-list">
-                        <li>不得張貼「嫌棄女友廚藝」等攻擊性文字，違反者罰幫女友按摩 30 分鐘。</li>
-                        <li>發現叫外送卻偽裝自煮者，應立即給予女友保護費 300 元。</li>
-                    </ul>
-                </div>
-                <div class="terms-section">
-                    <h3>9. 一般條款</h3>
-                    <p>本服務條款若有爭議，應以<strong>「女友永遠是對的」</strong>為最高指導原則，並以「旋轉花市」為第一審管轄法院。</p>
-                </div>
-            `
+            '關於勛勛上菜': `<h2>關於勛勛上菜</h2><div class="info-quote">「卸下建築圖紙，在廚房裡勾勒家的溫度。」</div><p>勛勛上菜是專為張景勛建築師打造的補給站。</p>`,
+            '隱私權與條款': `<h2>隱私權與條款</h2><p>違反約定需繳交保護費 300 元或按摩 30 分鐘。</p>`,
+            '帳號設定': `<h2>👤 帳號設定</h2><p>目前身分：榮譽主廚<br>系統等級：VIP</p>`,
+            '忘記密碼': `<h2>🔑 密碼提示</h2><p>請聯繫您的「專屬設計師(女友)」，並支付 300 元領取提示。</p>`
         };
 
         const handleMenuClick = (item) => {
             showMenu.value = false;
-            if (contentData[item]) {
+            if (item === '個人頁面' || item === '食譜收藏') {
+                isPersonalPage.value = true;
+                showInfoModal.value = true;
+            } else if (contentData[item]) {
+                isPersonalPage.value = false;
                 infoModalContent.value = contentData[item];
                 showInfoModal.value = true;
-            } else if (item === '加入我們') {
-                alert('我們目前只有主廚(勛勛)和試吃員(妳)，已經額滿囉！❤️');
             } else {
-                alert(`「${item}」頁面開發中，敬請期待 v20.0！`);
+                alert('開發中！');
             }
         };
 
-        // --- EmailJS / 存檔邏輯 ---
-        const EMAIL_SERVICE_ID = 'service_voqowbk';   
-        const EMAIL_TEMPLATE_ID = 'template_d6l7uav'; 
-        const EMAIL_PUBLIC_KEY = 'OYM1raInOn1sEW7FG';   
+        const saveProfile = () => {
+            localStorage.setItem('shyun_profile', JSON.stringify(userProfile.value));
+            isEditingProfile.value = false;
+            alert('主廚資訊更新成功！✨');
+        };
+
+        // 🔥 跳轉食譜功能 🔥
+        const scrollToRecipe = (name) => {
+            showInfoModal.value = false;
+            // 延遲一點點，等彈窗關掉再跳轉
+            setTimeout(() => {
+                const element = document.getElementById('recipe-' + name);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                    // 加一個短暫的閃爍效果提示使用者
+                    element.style.ring = "4px solid #ea580c";
+                    setTimeout(() => element.style.ring = "none", 1500);
+                }
+            }, 300);
+        };
+
+        const toggleFavorite = (name) => {
+            const idx = favorites.value.indexOf(name);
+            if (idx > -1) favorites.value.splice(idx, 1);
+            else favorites.value.push(name);
+            localStorage.setItem('shyun_favorites', JSON.stringify(favorites.value));
+        };
+
+        const isFav = (name) => favorites.value.includes(name);
 
         onMounted(() => {
-            if (EMAIL_PUBLIC_KEY) emailjs.init(EMAIL_PUBLIC_KEY);
-            loadNotesFromStorage();
+            if ('OYM1raInOn1sEW7FG') emailjs.init('OYM1raInOn1sEW7FG');
+            favorites.value = JSON.parse(localStorage.getItem('shyun_favorites') || '[]');
+            const savedProfile = localStorage.getItem('shyun_profile');
+            if (savedProfile) userProfile.value = JSON.parse(savedProfile);
+            
             const hasAuth = localStorage.getItem('shyun_auth_pass');
-            if (!hasAuth) {
-                setTimeout(() => { showLoginModal.value = true; }, 5000);
-            }
+            if (!hasAuth) setTimeout(() => showLoginModal.value = true, 5000);
         });
 
         const checkLogin = () => {
@@ -335,66 +303,41 @@ createApp({
                 showLoginModal.value = false;
                 localStorage.setItem('shyun_auth_pass', 'true');
             } else {
-                loginError.value = true;
-                isShake.value = true;
-                setTimeout(() => { isShake.value = false; }, 500);
-                inputPwd.value = '';
+                alert('密碼錯誤！');
             }
         };
 
-        const loadNotesFromStorage = () => {
-            const savedData = localStorage.getItem('shyun_cook_notes');
-            if (savedData) {
-                const notesMap = JSON.parse(savedData);
-                recipes.value.forEach(r => { r.savedNotes = notesMap[r.name] || []; });
-            }
+        const saveAndSend = (recipe) => {
+            if (!recipe.userFeedback) return;
+            const today = new Date().toLocaleDateString();
+            if (!recipe.savedNotes) recipe.savedNotes = [];
+            recipe.savedNotes.unshift({ date: today, text: recipe.userFeedback });
+            const notesMap = {};
+            recipes.value.forEach(r => { if (r.savedNotes && r.savedNotes.length > 0) notesMap[r.name] = r.savedNotes; });
+            localStorage.setItem('shyun_cook_notes', JSON.stringify(notesMap));
+            emailjs.send('service_voqowbk', 'template_d6l7uav', { recipe_name: recipe.name, message: recipe.userFeedback });
+            recipe.userFeedback = '';
+            alert('筆記已存檔！');
         };
 
-        const saveToStorage = () => {
+        const deleteNote = (recipe, idx) => {
+            recipe.savedNotes.splice(idx, 1);
             const notesMap = {};
             recipes.value.forEach(r => { if (r.savedNotes && r.savedNotes.length > 0) notesMap[r.name] = r.savedNotes; });
             localStorage.setItem('shyun_cook_notes', JSON.stringify(notesMap));
         };
 
-        const saveAndSend = (recipe) => {
-            if (!recipe.userFeedback) return;
-            recipe.isSending = true;
-            const today = new Date().toLocaleDateString();
-            if (!recipe.savedNotes) recipe.savedNotes = [];
-            recipe.savedNotes.unshift({ date: today, text: recipe.userFeedback });
-            saveToStorage();
-            const templateParams = { recipe_name: recipe.name, message: recipe.userFeedback };
-            emailjs.send(EMAIL_SERVICE_ID, EMAIL_TEMPLATE_ID, templateParams).finally(() => {
-                recipe.userFeedback = ''; 
-                recipe.isSending = false;
-            });
-        };
-
-        const deleteNote = (recipe, idx) => {
-            if (confirm('確定刪除？')) { recipe.savedNotes.splice(idx, 1); saveToStorage(); }
-        };
-
-        const ingredientGroups = {
-            '🥩 肉類': ['五花肉', '排骨', '豬肉片', '雞腿排', '全雞', '鹽水雞'],
-            '🐟 海鮮': ['鱸魚', '台灣鯛', '虱目魚', '蛤蜊', '鮮蚵', '蝦子'],
-            '🥦 蔬果': ['青江菜', '空心菜', 'A菜', '地瓜葉', '絲瓜', '苦瓜', '小黃瓜', '冬瓜'],
-            '📦 乾貨': ['豆皮', '油豆腐', '腐皮', '香菇', '小魚干', '魚丸']
-        };
-        const styles = ['台式', '日式', '韓式', '義式', '泰式', '美式', '早午餐', '甜點', '家常熱炒', '古早味滷肉', '夜市小吃'];
-        const toggle = (i) => {
-            const idx = selected.value.indexOf(i);
-            if (idx > -1) selected.value.splice(idx, 1);
-            else selected.value.push(i);
-        };
+        const ingredientGroups = { '🥩 肉類': ['五花肉', '排骨', '豬肉片', '雞腿排'], '🐟 海鮮': ['鱸魚', '台灣鯛', '虱目魚'], '🥦 蔬果': ['青江菜', '空心菜', '地瓜葉'], '📦 乾貨': ['豆皮', '油豆腐', '腐皮'] };
+        const styles = ['台式', '日式', '義式', '泰式', '早午餐', '家常熱炒'];
+        const toggle = (i) => { const idx = selected.value.indexOf(i); if (idx > -1) selected.value.splice(idx, 1); else selected.value.push(i); };
         const filteredRecipes = computed(() => {
-            let results = recipes.value;
-            if (selected.value.length > 0) results = results.filter(r => r.tags.some(t => selected.value.includes(t)));
-            if (currentTab.value !== 'all') results = results.filter(r => r.type === currentTab.value);
-            return results;
+            let res = recipes.value;
+            if (selected.value.length > 0) res = res.filter(r => r.tags.some(t => selected.value.includes(t)));
+            if (currentTab.value !== 'all') res = res.filter(r => r.type === currentTab.value);
+            return res;
         });
-        const triggerSecret = (recipe) => { recipe.showSecret = true; };
 
-        return { selected, ingredientGroups, styles, recipes, toggle, filteredRecipes, currentTab, imgError, handleImgError, triggerSecret, saveAndSend, deleteNote, showLoginModal, inputUser, inputPwd, loginError, checkLogin, isShake, showMenu, menuItems, handleMenuClick, showInfoModal, infoModalContent, tabs };
+        return { selected, ingredientGroups, styles, recipes, toggle, filteredRecipes, currentTab, imgError, handleImgError, saveAndSend, deleteNote, showLoginModal, inputUser, inputPwd, checkLogin, showMenu, menuItems, handleMenuClick, showInfoModal, infoModalContent, tabs, toggleFavorite, isFav, favorites, isPersonalPage, isEditingProfile, userProfile, saveProfile, scrollToRecipe };
     }
 }).mount('#app');
 </script>
