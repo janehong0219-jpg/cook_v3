@@ -21,7 +21,7 @@ const allRecipes = [
         tags: ['絲瓜', '蛤蜊', '台式', '家常熱炒'],
         name: '鮮甜絲瓜蛤蜊',
         time: '15 min',
-        img: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800', 
+        img: 'clams.jpg', 
         ingredients: [{ name: '絲瓜', qty: '1 條' }, { name: '蛤蜊', qty: '300g' }, { name: '薑絲', qty: '適量' }],
         steps: ['絲瓜切塊，熱鍋爆香薑絲。', '下絲瓜炒軟，放入蛤蜊。', '加少許水悶煮至蛤蜊全開。'],
         gf: '這道菜根本就是喝湯用的！絲瓜的甜加蛤蜊的鮮，超級清爽。但拜託蛤蜊吐沙吐乾淨，我不想吃到沙子。'
@@ -31,7 +31,7 @@ const allRecipes = [
         tags: ['空心菜', '大蒜', '台式', '家常熱炒'],
         name: '大火蒜炒空心菜',
         time: '5 min',
-        img: 'https://images.unsplash.com/photo-1562967677-77567793d5f5?w=800',
+        img: 'waterspinach.jpg',
         ingredients: [{ name: '空心菜', qty: '1 把' }, { name: '蒜頭', qty: '5 瓣' }, { name: '辣椒', qty: '1 根' }],
         steps: ['熱油爆香大量的蒜碎與辣椒。', '下空心菜大火快炒。', '鍋邊淋點水，加鹽調味迅速起鍋。'],
         gf: '炒青菜要的就是那個「鍋氣」！火要大、動作要快，不然青菜變黑就不好吃了。多吃點菜，不要整天只吃肉。'
@@ -41,7 +41,7 @@ const allRecipes = [
         tags: ['五花肉', '蔥', '大蒜', '古早味滷肉', '台式'],
         name: '阿嬤的紅燒五花肉',
         time: '45 min',
-        img: 'https://images.unsplash.com/photo-1606728035784-c8a13a426456?w=800',
+        img: 'pork.jpg',
         ingredients: [{ name: '五花肉', qty: '600g' }, { name: '醬油', qty: '50ml' }, { name: '冰糖', qty: '1 大匙' }, { name: '八角', qty: '2 顆' }],
         steps: ['五花肉煸炒逼油。', '加入冰糖炒出糖色。', '加佐料燉煮 40 分鐘。'],
         gf: '這五花肉滷得亮晶晶的，看起來就很邪惡！雖然很下飯，但那個肥油...我們一人一半，肥的給你，瘦的給我。'
@@ -51,7 +51,7 @@ const allRecipes = [
         tags: ['排骨', '大蒜', '台式', '港點'],
         name: '蒜香豉汁蒸排骨',
         time: '30 min',
-        img: 'https://images.unsplash.com/photo-1542038784424-48dd9548bc62?w=800',
+        img: 'steamedpork.jpg',
         ingredients: [{ name: '豬小排', qty: '300g' }, { name: '豆豉', qty: '1 匙' }, { name: '太白粉', qty: '1 匙' }],
         steps: ['排骨去血水瀝乾。', '拌入調味料抓醃。', '電鍋蒸熟即可。'],
         gf: '蒸排骨比較健康一點，沒有油煙。記得排骨要洗乾淨，不然會有腥味。這道菜很適合帶便當喔！'
