@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>勛勛上菜 v11.8 - 圖片優化版</title>
+    <title>勛勛上菜 v13.5 - 自動存檔版</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -24,11 +25,22 @@
         .animate-fade-up { animation: fadeInUp 0.5s ease-out forwards; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* 彩蛋與點評樣式 (完整保留) */
         .gf-box { background: #fff1f2; border-left: 4px solid #f43f5e; color: #9f1239; }
         .gf-box.warm-mode { background: #fff7ed; border-left-color: #f97316; color: #9a3412; }
         @keyframes heartbeat { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
         .secret-heart { animation: heartbeat 1.5s infinite; cursor: pointer; position: absolute; top: 12px; right: 12px; color: #f43f5e; font-size: 1.2rem; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1)); }
+
+        .chef-note { background: #f5f5f4; border-radius: 16px; padding: 16px; margin-top: 16px; }
+        .chef-input { width: 100%; background: white; border: 1px solid #e7e5e4; border-radius: 8px; padding: 10px; font-size: 14px; margin-top: 8px; outline: none; transition: border 0.3s; resize: none; }
+        .chef-input:focus { border-color: #a8a29e; }
+        .send-btn { background: #44403c; color: white; border-radius: 8px; padding: 6px 16px; font-size: 12px; font-weight: bold; margin-top: 8px; float: right; transition: background 0.2s; }
+        .send-btn:active { background: #1c1917; }
+        .send-btn:disabled { background: #d6d3d1; cursor: not-allowed; }
+
+        .history-item { border-left: 3px solid #d6d3d1; padding-left: 12px; margin-bottom: 12px; background: white; padding: 10px; border-radius: 0 8px 8px 0; }
+        .history-date { font-size: 10px; color: #a8a29e; font-weight: bold; margin-bottom: 2px; }
+        .history-content { font-size: 13px; color: #57534e; line-height: 1.4; }
+        .delete-note { float: right; color: #ef4444; font-size: 10px; cursor: pointer; opacity: 0.5; }
     </style>
 </head>
 <body>
@@ -60,7 +72,6 @@
 
     <main class="flex-1 pb-32">
         <div class="mt-4 px-6 space-y-5">
-            
             <div v-for="(list, group) in ingredientGroups" :key="group">
                 <h3 class="text-xs font-bold text-stone-400 mb-2 uppercase tracking-widest flex items-center">
                     <i class="fas fa-carrot mr-1.5 opacity-50"></i> {{ group }}
@@ -130,6 +141,43 @@
                                 </p>
                                 <div v-if="recipe.secretMsg && !recipe.showSecret" @click.stop="triggerSecret(recipe)" class="secret-heart" title="點我有驚喜"><i class="fas fa-heart"></i></div>
                             </div>
+
+                            <div class="chef-note">
+                                <h4 class="text-xs font-bold text-stone-500 mb-3 flex items-center justify-between">
+                                    <span><i class="fas fa-pen-nib mr-1.5"></i> 勛勛的主廚筆記</span>
+                                    <span class="text-[10px] bg-stone-200 px-2 py-0.5 rounded-full" v-if="recipe.savedNotes && recipe.savedNotes.length">
+                                        {{ recipe.savedNotes.length }} 則
+                                    </span>
+                                </h4>
+
+                                <div v-if="recipe.savedNotes && recipe.savedNotes.length > 0" class="mb-4 space-y-3">
+                                    <div v-for="(note, idx) in recipe.savedNotes" :key="idx" class="history-item">
+                                        <div class="flex justify-between items-center mb-1">
+                                            <div class="history-date">{{ note.date }}</div>
+                                            <div class="delete-note" @click="deleteNote(recipe, idx)">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </div>
+                                        </div>
+                                        <p class="history-content">{{ note.text }}</p>
+                                    </div>
+                                </div>
+                                <div v-else class="text-center py-4 text-xs text-stone-400 italic">
+                                    還沒有筆記，寫點什麼吧？
+                                </div>
+
+                                <textarea v-model="recipe.userFeedback" 
+                                          rows="2" 
+                                          class="chef-input" 
+                                          placeholder="紀錄心得 (會自動存在這個裝置喔)..."></textarea>
+                                
+                                <button @click="saveAndSend(recipe)" 
+                                        :disabled="recipe.isSending || !recipe.userFeedback"
+                                        class="send-btn">
+                                    {{ recipe.isSending ? '儲存中...' : '儲存筆記' }} <i class="fas fa-save ml-1"></i>
+                                </button>
+                                <div style="clear:both;"></div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -146,7 +194,7 @@
 <script src="data.js"></script>
 
 <script>
-const { createApp, ref, computed } = Vue;
+const { createApp, ref, computed, onMounted } = Vue;
 
 createApp({
     setup() {
@@ -154,8 +202,93 @@ createApp({
         const currentTab = ref('all');
         const imgError = ref(false);
         const handleImgError = () => { imgError.value = true; };
-        
         const recipes = ref(typeof allRecipes !== 'undefined' ? allRecipes : []);
+
+        // --- ⚠️ 請填入 EmailJS ID (如果不填，就只會存檔不會寄信) ---
+        const EMAIL_SERVICE_ID = 'service_voqowbk';   
+        const EMAIL_TEMPLATE_ID = 'template_d6l7uav'; 
+        const EMAIL_PUBLIC_KEY = 'OYM1raInOn1sEW7FG';   
+
+        onMounted(() => {
+            // 1. 初始化 EmailJS
+            if (EMAIL_PUBLIC_KEY) emailjs.init(EMAIL_PUBLIC_KEY);
+
+            // 2. 🔥 關鍵：從瀏覽器記憶體載入所有筆記 🔥
+            loadNotesFromStorage();
+        });
+
+        // 從 LocalStorage 讀取筆記
+        const loadNotesFromStorage = () => {
+            const savedData = localStorage.getItem('hsun_cook_notes');
+            if (savedData) {
+                const notesMap = JSON.parse(savedData);
+                // 把讀到的筆記，塞回對應的食譜裡
+                recipes.value.forEach(r => {
+                    if (notesMap[r.name]) {
+                        r.savedNotes = notesMap[r.name];
+                    } else {
+                        r.savedNotes = [];
+                    }
+                });
+            }
+        };
+
+        // 儲存筆記到 LocalStorage
+        const saveToStorage = () => {
+            const notesMap = {};
+            recipes.value.forEach(r => {
+                if (r.savedNotes && r.savedNotes.length > 0) {
+                    notesMap[r.name] = r.savedNotes;
+                }
+            });
+            localStorage.setItem('hsun_cook_notes', JSON.stringify(notesMap));
+        };
+
+        // 🔥 核心功能：儲存並寄送
+        const saveAndSend = (recipe) => {
+            if (!recipe.userFeedback) return;
+            recipe.isSending = true;
+
+            // 1. 先存檔 (不管有沒有網路，先存在手機裡)
+            const today = new Date().toLocaleDateString();
+            if (!recipe.savedNotes) recipe.savedNotes = [];
+            
+            // 把新筆記加進去
+            recipe.savedNotes.unshift({
+                date: today,
+                text: recipe.userFeedback
+            });
+            
+            // 寫入瀏覽器記憶體
+            saveToStorage();
+
+            // 2. 嘗試寄信 (背景執行，不卡畫面)
+            const templateParams = {
+                recipe_name: recipe.name,
+                message: recipe.userFeedback
+            };
+
+            emailjs.send(EMAIL_SERVICE_ID, EMAIL_TEMPLATE_ID, templateParams)
+                .then(() => {
+                    console.log('Email 寄送成功');
+                }, (err) => {
+                    console.error('Email 寄送失敗 (但筆記已儲存在手機)', err);
+                })
+                .finally(() => {
+                    // 結束
+                    recipe.userFeedback = ''; 
+                    recipe.isSending = false;
+                    alert('✅ 筆記已儲存！');
+                });
+        };
+
+        // 刪除功能
+        const deleteNote = (recipe, idx) => {
+            if (confirm('確定要刪除這條筆記嗎？')) {
+                recipe.savedNotes.splice(idx, 1);
+                saveToStorage();
+            }
+        };
 
         const ingredientGroups = {
             '🥩 肉類 (豬/雞)': ['五花肉', '排骨', '豬肉片', '雞腿排', '全雞', '鹽水雞'],
@@ -163,7 +296,6 @@ createApp({
             '🥦 青菜瓜果': ['青江菜', '空心菜', 'A菜', '地瓜葉', '絲瓜', '苦瓜', '小黃瓜', '冬瓜'],
             '📦 乾貨加工': ['豆皮', '油豆腐', '腐皮', '香菇', '小魚干', '魚丸']
         };
-
         const styles = ['台式', '日式', '韓式', '義式', '泰式', '美式', '早午餐', '甜點', '家常熱炒', '古早味滷肉', '夜市小吃'];
 
         const toggle = (i) => {
@@ -174,18 +306,14 @@ createApp({
 
         const filteredRecipes = computed(() => {
             let results = recipes.value;
-            if (selected.value.length > 0) {
-                results = results.filter(r => r.tags.some(t => selected.value.includes(t)));
-            }
-            if (currentTab.value !== 'all') {
-                results = results.filter(r => r.type === currentTab.value);
-            }
+            if (selected.value.length > 0) results = results.filter(r => r.tags.some(t => selected.value.includes(t)));
+            if (currentTab.value !== 'all') results = results.filter(r => r.type === currentTab.value);
             return results;
         });
 
         const triggerSecret = (recipe) => { recipe.showSecret = true; };
 
-        return { selected, ingredientGroups, styles, recipes, toggle, filteredRecipes, currentTab, imgError, handleImgError, triggerSecret };
+        return { selected, ingredientGroups, styles, recipes, toggle, filteredRecipes, currentTab, imgError, handleImgError, triggerSecret, saveAndSend, deleteNote };
     }
 }).mount('#app');
 </script>
