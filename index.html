@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>勛勛上菜 v13.5 - 自動存檔版</title>
+    <title>勛勛上菜 v16.0 - 專屬登入版</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -41,11 +41,41 @@
         .history-date { font-size: 10px; color: #a8a29e; font-weight: bold; margin-bottom: 2px; }
         .history-content { font-size: 13px; color: #57534e; line-height: 1.4; }
         .delete-note { float: right; color: #ef4444; font-size: 10px; cursor: pointer; opacity: 0.5; }
+
+        /* 🔥 登入視窗樣式 🔥 */
+        .login-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .login-box { background: white; width: 85%; max-width: 320px; padding: 30px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); text-align: center; }
+        .login-input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #e7e5e4; border-radius: 12px; background: #fdfbf7; outline: none; transition: all 0.3s; }
+        .login-input:focus { border-color: #ea580c; background: white; }
+        .login-btn { width: 100%; background: #ea580c; color: white; padding: 12px; border-radius: 12px; font-weight: bold; margin-top: 8px; transition: 0.2s; }
+        .login-btn:active { transform: scale(0.95); }
+        .shake { animation: shake 0.5s; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     </style>
 </head>
 <body>
 
 <div id="app" v-cloak class="app-shell flex flex-col">
+    
+    <div v-if="showLoginModal" class="login-overlay animate-fade-up">
+        <div :class="['login-box', isShake ? 'shake' : '']">
+            <div class="mb-6">
+                <div class="w-16 h-16 bg-stone-100 rounded-full mx-auto mb-3 flex items-center justify-center text-2xl">🔒</div>
+                <h2 class="text-xl font-bold text-stone-800">請先登入</h2>
+                <p class="text-xs text-stone-400 mt-1">這是我們的小天地，請輸入密碼</p>
+            </div>
+            
+            <input type="text" v-model="inputUser" placeholder="帳號" class="login-input">
+            <input type="password" v-model="inputPwd" placeholder="密碼" class="login-input">
+            
+            <button @click="checkLogin" class="login-btn">
+                進入廚房 <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+            
+            <p v-if="loginError" class="text-xs text-red-500 mt-3 font-medium">帳號或密碼錯誤囉！</p>
+        </div>
+    </div>
+
     <header class="pt-6 px-6 pb-2 flex items-center gap-4 bg-[#fdfbf7] sticky top-0 z-50">
         <div class="w-12 h-12 rounded-full overflow-hidden border border-stone-200 shadow-sm shrink-0">
             <img v-if="!imgError" src="logo.jpg" alt="Logo" class="w-full h-full object-cover" @error="handleImgError">
@@ -149,35 +179,21 @@
                                         {{ recipe.savedNotes.length }} 則
                                     </span>
                                 </h4>
-
                                 <div v-if="recipe.savedNotes && recipe.savedNotes.length > 0" class="mb-4 space-y-3">
                                     <div v-for="(note, idx) in recipe.savedNotes" :key="idx" class="history-item">
                                         <div class="flex justify-between items-center mb-1">
                                             <div class="history-date">{{ note.date }}</div>
-                                            <div class="delete-note" @click="deleteNote(recipe, idx)">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </div>
+                                            <div class="delete-note" @click="deleteNote(recipe, idx)"><i class="fas fa-trash-alt"></i></div>
                                         </div>
                                         <p class="history-content">{{ note.text }}</p>
                                     </div>
                                 </div>
-                                <div v-else class="text-center py-4 text-xs text-stone-400 italic">
-                                    還沒有筆記，寫點什麼吧？
-                                </div>
-
-                                <textarea v-model="recipe.userFeedback" 
-                                          rows="2" 
-                                          class="chef-input" 
-                                          placeholder="紀錄心得 (會自動存在這個裝置喔)..."></textarea>
-                                
-                                <button @click="saveAndSend(recipe)" 
-                                        :disabled="recipe.isSending || !recipe.userFeedback"
-                                        class="send-btn">
+                                <textarea v-model="recipe.userFeedback" rows="2" class="chef-input" placeholder="紀錄心得..."></textarea>
+                                <button @click="saveAndSend(recipe)" :disabled="recipe.isSending || !recipe.userFeedback" class="send-btn">
                                     {{ recipe.isSending ? '儲存中...' : '儲存筆記' }} <i class="fas fa-save ml-1"></i>
                                 </button>
                                 <div style="clear:both;"></div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -204,87 +220,94 @@ createApp({
         const handleImgError = () => { imgError.value = true; };
         const recipes = ref(typeof allRecipes !== 'undefined' ? allRecipes : []);
 
-        // --- ⚠️ 請填入 EmailJS ID (如果不填，就只會存檔不會寄信) ---
+        // --- 登入相關設定 ---
+        const showLoginModal = ref(false);
+        const inputUser = ref('');
+        const inputPwd = ref('');
+        const loginError = ref(false);
+        const isShake = ref(false);
+        
+        // 🔑 這裡設定你的帳號密碼 🔑
+        const CORRECT_USER = 'shyun';
+        const CORRECT_PWD = 'love1314';
+
+        // --- EmailJS 設定 (請填入你的) ---
         const EMAIL_SERVICE_ID = 'service_voqowbk';   
         const EMAIL_TEMPLATE_ID = 'template_d6l7uav'; 
         const EMAIL_PUBLIC_KEY = 'OYM1raInOn1sEW7FG';   
 
         onMounted(() => {
-            // 1. 初始化 EmailJS
+            // 初始化 EmailJS
             if (EMAIL_PUBLIC_KEY) emailjs.init(EMAIL_PUBLIC_KEY);
-
-            // 2. 🔥 關鍵：從瀏覽器記憶體載入所有筆記 🔥
+            // 載入筆記
             loadNotesFromStorage();
+
+            // 🔥 5秒後檢查登入 🔥
+            // 這裡檢查 localStorage，如果之前已經登入過，就不用再登 (避免每次重整都要登很煩)
+            // 如果你希望「每次」重整都要登入，就把 if (localStorage...) 這段刪掉，直接留 setTimeout
+            const hasAuth = localStorage.getItem('shyun_auth_pass');
+            if (!hasAuth) {
+                setTimeout(() => {
+                    showLoginModal.value = true;
+                }, 5000); // 5000毫秒 = 5秒
+            }
         });
 
-        // 從 LocalStorage 讀取筆記
+        // 驗證登入
+        const checkLogin = () => {
+            if (inputUser.value === CORRECT_USER && inputPwd.value === CORRECT_PWD) {
+                // 登入成功
+                showLoginModal.value = false;
+                localStorage.setItem('shyun_auth_pass', 'true'); // 記住已登入
+            } else {
+                // 登入失敗
+                loginError.value = true;
+                isShake.value = true;
+                setTimeout(() => { isShake.value = false; }, 500); // 重置震動動畫
+                inputPwd.value = ''; // 清空密碼
+            }
+        };
+
         const loadNotesFromStorage = () => {
-            const savedData = localStorage.getItem('hsun_cook_notes');
+            const savedData = localStorage.getItem('shyun_cook_notes');
             if (savedData) {
                 const notesMap = JSON.parse(savedData);
-                // 把讀到的筆記，塞回對應的食譜裡
                 recipes.value.forEach(r => {
-                    if (notesMap[r.name]) {
-                        r.savedNotes = notesMap[r.name];
-                    } else {
-                        r.savedNotes = [];
-                    }
+                    if (notesMap[r.name]) r.savedNotes = notesMap[r.name];
+                    else r.savedNotes = [];
                 });
             }
         };
 
-        // 儲存筆記到 LocalStorage
         const saveToStorage = () => {
             const notesMap = {};
             recipes.value.forEach(r => {
-                if (r.savedNotes && r.savedNotes.length > 0) {
-                    notesMap[r.name] = r.savedNotes;
-                }
+                if (r.savedNotes && r.savedNotes.length > 0) notesMap[r.name] = r.savedNotes;
             });
-            localStorage.setItem('hsun_cook_notes', JSON.stringify(notesMap));
+            localStorage.setItem('shyun_cook_notes', JSON.stringify(notesMap));
         };
 
-        // 🔥 核心功能：儲存並寄送
         const saveAndSend = (recipe) => {
             if (!recipe.userFeedback) return;
             recipe.isSending = true;
 
-            // 1. 先存檔 (不管有沒有網路，先存在手機裡)
             const today = new Date().toLocaleDateString();
             if (!recipe.savedNotes) recipe.savedNotes = [];
-            
-            // 把新筆記加進去
-            recipe.savedNotes.unshift({
-                date: today,
-                text: recipe.userFeedback
-            });
-            
-            // 寫入瀏覽器記憶體
+            recipe.savedNotes.unshift({ date: today, text: recipe.userFeedback });
             saveToStorage();
 
-            // 2. 嘗試寄信 (背景執行，不卡畫面)
-            const templateParams = {
-                recipe_name: recipe.name,
-                message: recipe.userFeedback
-            };
-
+            const templateParams = { recipe_name: recipe.name, message: recipe.userFeedback };
             emailjs.send(EMAIL_SERVICE_ID, EMAIL_TEMPLATE_ID, templateParams)
-                .then(() => {
-                    console.log('Email 寄送成功');
-                }, (err) => {
-                    console.error('Email 寄送失敗 (但筆記已儲存在手機)', err);
-                })
+                .then(() => {}, (err) => console.error(err))
                 .finally(() => {
-                    // 結束
                     recipe.userFeedback = ''; 
                     recipe.isSending = false;
                     alert('✅ 筆記已儲存！');
                 });
         };
 
-        // 刪除功能
         const deleteNote = (recipe, idx) => {
-            if (confirm('確定要刪除這條筆記嗎？')) {
+            if (confirm('確定刪除？')) {
                 recipe.savedNotes.splice(idx, 1);
                 saveToStorage();
             }
@@ -313,7 +336,7 @@ createApp({
 
         const triggerSecret = (recipe) => { recipe.showSecret = true; };
 
-        return { selected, ingredientGroups, styles, recipes, toggle, filteredRecipes, currentTab, imgError, handleImgError, triggerSecret, saveAndSend, deleteNote };
+        return { selected, ingredientGroups, styles, recipes, toggle, filteredRecipes, currentTab, imgError, handleImgError, triggerSecret, saveAndSend, deleteNote, showLoginModal, inputUser, inputPwd, loginError, checkLogin, isShake };
     }
 }).mount('#app');
 </script>
