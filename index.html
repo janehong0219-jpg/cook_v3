@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>勛勛上菜 v11.1 - 舒適選單版</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        [v-cloak] { display: none; }
+        body { background-color: #fdfbf7; font-family: 'Noto Sans TC', sans-serif; color: #44403c; -webkit-tap-highlight-color: transparent; }
+        .app-shell { max-width: 500px; margin: 0 auto; min-height: 100vh; background: #fdfbf7; }
+        
+        /* 捲軸隱藏 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* 分頁按鈕 (Tabs) */
+        .tab-btn { padding: 8px 0; margin-right: 24px; color: #a8a29e; font-weight: 500; transition: all 0.3s; position: relative; white-space: nowrap; }
+        .tab-btn.active { color: #1c1917; font-weight: 700; font-size: 1.1em; }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; background: #ea580c; border-radius: 50%; }
+
+        /* 食材膠囊 (Chips) */
+        .chip { transition: all 0.2s; white-space: nowrap; }
+        .chip.active { background: #1c1917 !important; color: white !important; border-color: #1c1917 !important; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transform: translateY(-1px); }
+
+        /* 食譜卡片 */
+        .recipe-card { background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); transition: transform 0.3s; }
+        .recipe-card:active { transform: scale(0.98); }
+
+        /* 女友點評 */
+        .gf-box { background: #f5f5f4; border-radius: 0 16px 16px 16px; padding: 16px; position: relative; margin-top: 16px; }
+        .gf-box::before { content: ''; position: absolute; top: 0; left: -8px; width: 0; height: 0; border-top: 10px solid #f5f5f4; border-left: 10px solid transparent; }
+        
+        .animate-fade-up { animation: fadeInUp 0.5s ease-out forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div id="app" v-cloak class="app-shell flex flex-col">
+    
+    <header class="pt-8 px-6 pb-2 flex items-center gap-4 bg-[#fdfbf7] sticky top-0 z-50">
+        <div class="w-12 h-12 rounded-full overflow-hidden border border-stone-200 shadow-sm shrink-0">
+            <img v-if="!imgError" src="logo.jpg" alt="Logo" class="w-full h-full object-cover" @error="handleImgError">
+            <svg v-else viewBox="0 0 100 100" class="w-full h-full bg-stone-100"><circle cx="50" cy="50" r="20" fill="#ddd"/></svg>
+        </div>
+        <div>
+            <h1 class="text-xl font-bold tracking-tight text-stone-800">勛勛上菜</h1>
+            <p class="text-xs text-stone-400 font-medium tracking-wide">陪你把日子，過成喜歡的味道。</p>
+        </div>
+        <button v-if="selected.length" @click="selected = []" class="ml-auto text-xs font-bold text-stone-400 border border-stone-200 px-3 py-1 rounded-full hover:bg-stone-800 hover:text-white transition-colors">
+            清除 ({{ selected.length }})
+        </button>
+    </header>
+
+    <nav class="sticky top-[80px] z-40 bg-[#fdfbf7]/95 backdrop-blur px-6 border-b border-stone-100/50">
+        <div class="flex overflow-x-auto no-scrollbar pb-1">
+            <button @click="currentTab = 'all'" :class="['tab-btn', currentTab === 'all' ? 'active' : '']">全部</button>
+            <button @click="currentTab = 'main'" :class="['tab-btn', currentTab === 'main' ? 'active' : '']">吃飽主食</button>
+            <button @click="currentTab = 'side'" :class="['tab-btn', currentTab === 'side' ? 'active' : '']">宵夜下酒</button>
+            <button @click="currentTab = 'brunch'" :class="['tab-btn', currentTab === 'brunch' ? 'active' : '']">早午餐</button>
+            <button @click="currentTab = 'teatime'" :class="['tab-btn', currentTab === 'teatime' ? 'active' : '']">午茶甜點</button>
+        </div>
+    </nav>
+
+    <main class="flex-1 pb-32">
+        <div class="mt-6 px-6 space-y-6">
+            
+            <div>
+                <h3 class="text-xs font-bold text-stone-400 mb-3 uppercase tracking-widest flex items-center">
+                    <i class="fas fa-carrot mr-1.5"></i> 冰箱食材
+                </h3>
+                <div class="flex flex-wrap gap-2.5">
+                    <button v-for="item in baseIngredients" :key="item" @click="toggle(item)"
+                        :class="['chip px-4 py-2 rounded-2xl text-sm font-medium border border-stone-200 text-stone-600 bg-white', 
+                                selected.includes(item) ? 'active' : 'hover:bg-stone-50']">
+                        {{ item }}
+                    </button>
+                </div>
+            </div>
+
+            <div class="border-t border-stone-100"></div>
+
+            <div>
+                <h3 class="text-xs font-bold text-stone-400 mb-3 uppercase tracking-widest flex items-center">
+                    <i class="fas fa-globe-asia mr-1.5"></i> 料理風格
+                </h3>
+                <div class="flex flex-wrap gap-2">
+                    <button v-for="style in styles" :key="style" @click="toggle(style)"
+                         :class="['chip px-3 py-1.5 rounded-full text-xs font-medium border border-stone-100 text-stone-400 bg-stone-50', 
+                                selected.includes(style) ? 'active' : 'hover:bg-stone-100']">
+                        #{{ style }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 px-6 space-y-8">
+            <div v-if="filteredRecipes.length > 0">
+                <div v-for="recipe in filteredRecipes" :key="recipe.name" class="recipe-card animate-fade-up">
+                    <div class="relative h-64 w-full">
+                        <img :src="recipe.img" class="w-full h-full object-cover rounded-t-3xl">
+                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-stone-800 shadow-sm">
+                            {{ recipe.time }}
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        <div class="flex gap-2 mb-3">
+                            <span v-for="tag in recipe.tags.filter(t => styles.includes(t))" :key="tag" class="text-[10px] font-bold tracking-wider uppercase text-stone-400 border border-stone-200 px-2 py-0.5 rounded">
+                                {{ tag }}
+                            </span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-stone-800 mb-4">{{ recipe.name }}</h2>
+
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-xs font-bold text-stone-400 mb-2">食材</h4>
+                                <p class="text-sm text-stone-600 leading-relaxed">
+                                    <span v-for="(ing, i) in recipe.ingredients" :key="i">
+                                        {{ ing.name }} {{ ing.qty }}<span v-if="i < recipe.ingredients.length-1">、</span>
+                                    </span>
+                                </p>
+                            </div>
+                            
+                            <div class="gf-box">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <div class="w-2 h-2 rounded-full bg-red-400"></div>
+                                    <span class="text-[10px] font-bold text-stone-400">犀利點評</span>
+                                </div>
+                                <p class="text-sm text-stone-600 italic">“{{ recipe.gf }}”</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-else class="text-center py-20 opacity-40">
+                <i class="fas fa-utensils text-4xl mb-4 text-stone-300"></i>
+                <p class="text-sm text-stone-500">還沒選到想吃的嗎？</p>
+                <p class="text-xs text-stone-400 mt-2">試試點擊上方的食材或風格按鈕</p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="data.js"></script>
+
+<script>
+const { createApp, ref, computed } = Vue;
+
+createApp({
+    setup() {
+        const selected = ref([]);
+        const currentTab = ref('all');
+        const imgError = ref(false);
+        const handleImgError = () => { imgError.value = true; };
+        
+        const recipes = ref(typeof allRecipes !== 'undefined' ? allRecipes : []);
+
+        // 這裡將食材和風格分開，並保留在畫面上
+        const baseIngredients = ['雞腿肉', '牛肉', '豬肉', '雞蛋', '蝦子', '魚', '櫛瓜', '蔥', '洋蔥', '番茄', '豆腐', '起司', '馬鈴薯', '腐竹', '海苔', '明太魚'];
+        const styles = ['台式', '日式', '韓式', '義式', '泰式', '美式', '早午餐', '甜點'];
+
+        const toggle = (i) => {
+            const idx = selected.value.indexOf(i);
+            if (idx > -1) selected.value.splice(idx, 1);
+            else selected.value.push(i);
+        };
+
+        const filteredRecipes = computed(() => {
+            let results = recipes.value;
+            // 標籤篩選
+            if (selected.value.length > 0) {
+                results = results.filter(r => r.tags.some(t => selected.value.includes(t)));
+            }
+            // 分頁篩選
+            if (currentTab.value !== 'all') {
+                results = results.filter(r => r.type === currentTab.value);
+            }
+            return results;
+        });
+
+        return { selected, baseIngredients, styles, recipes, toggle, filteredRecipes, currentTab, imgError, handleImgError };
+    }
+}).mount('#app');
+</script>
+
+</body>
+</html>
